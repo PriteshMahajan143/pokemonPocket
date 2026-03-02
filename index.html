@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pritesh Mahajan | Resume</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root {
+    --bg: #f4f6f8;
+    --card: #ffffff;
+    --text: #1f2937;
+    --accent: #2563eb;
+}
+
+body.dark {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --text: #f1f5f9;
+    --accent: #3b82f6;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 40px 20px;
+    transition: 0.3s ease;
+}
+
+.container {
+    max-width: 1000px;
+    margin: auto;
+    background: var(--card);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+    transition: 0.3s ease;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    align-items: center;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 20px;
+    margin-bottom: 25px;
+}
+
+.profile-section {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.profile-pic {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--accent);
+}
+
+h1 {
+    font-size: 26px;
+}
+
+.contact {
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.top-buttons {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    background: var(--accent);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    opacity: 0.8;
+}
+
+.toggle-btn {
+    cursor: pointer;
+}
+
+h2 {
+    margin-top: 30px;
+    margin-bottom: 10px;
+    color: var(--accent);
+}
+
+ul {
+    padding-left: 20px;
+    margin-bottom: 15px;
+}
+
+li {
+    margin-bottom: 6px;
+}
+
+.section-text {
+    margin-bottom: 15px;
+}
+
+.footer {
+    margin-top: 40px;
+    font-size: 14px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+    <div class="profile-section">
+        <img src="profile.jpg" alt="Pritesh Mahajan" class="profile-pic">
+        <div>
+            <h1>PRITESH JAYANAND MAHAJAN</h1>
+            <div class="contact">
+                📧 priteshmahajan13@gmail.com |
+                📱 +91-9769854190 |
+                📍 Mumbai, India
+            </div>
+        </div>
+    </div>
+
+    <div class="top-buttons">
+        <a href="resume.pdf" class="btn" download>
+            <i class="fas fa-download"></i> Download PDF
+        </a>
+        <a href="https://www.linkedin.com/in/pritesh-mahajan-987045215/" target="_blank" class="btn">
+            <i class="fab fa-linkedin"></i> LinkedIn
+        </a>
+        <a href="https://github.com/PriteshMahajan143" target="_blank" class="btn">
+            <i class="fab fa-github"></i> GitHub
+        </a>
+        <button onclick="toggleDarkMode()" class="btn toggle-btn">
+            🌙 Toggle Mode
+        </button>
+    </div>
+</div>
+
+<h2>Professional Summary</h2>
+<p class="section-text">
+Results-driven Quality Engineering Analyst with 5 years of experience in test automation, quality assurance, and software testing. Expertise in Playwright, Selenium, and AI-driven automation. Proven ability to reduce testing efforts by 50%, optimize test coverage, and mentor teams. Passionate about delivering high-quality software solutions.
+</p>
+
+<h2>Work Experience</h2>
+<p><strong>Accenture Solutions Private Limited | Quality Engineering Analyst</strong><br>
+Jan 2021 – Present (5 years)</p>
+
+<p class="section-text">
+As a Quality Engineering Analyst at Accenture, I have worked on multiple client engagements, delivering high-quality solutions by leveraging test automation, performance testing, and agile methodologies.
+</p>
+
+<ul>
+<li><strong>Automation Development & Optimization:</strong> Reduced manual testing effort by 50% using Playwright & Selenium.</li>
+<li><strong>Test Repository & Execution Efficiency:</strong> Developed centralized Automation Repository.</li>
+<li><strong>Quality Assurance & Test Coverage:</strong> Expanded automation coverage from 60% to 90%.</li>
+<li><strong>Defect Prevention & Collaboration:</strong> Reduced post-release defects by 30%.</li>
+<li><strong>Mentorship & Knowledge Sharing:</strong> Trained and mentored junior testers.</li>
+<li><strong>Performance & Accessibility Testing:</strong> Conducted load testing using JMeter & WCAG validation.</li>
+<li><strong>Agile & DevOps Practices:</strong> Integrated automation into CI/CD pipelines.</li>
+<li><strong>Documentation & Test Management:</strong> Managed defect lifecycle using JIRA.</li>
+</ul>
+
+<h2>Technical Skills</h2>
+<ul>
+<li><strong>Programming:</strong> Java, Python, JavaScript</li>
+<li><strong>Automation & Tools:</strong> Playwright, Selenium, Protractor, Postman, UFT, Cucumber</li>
+<li><strong>Performance:</strong> Apache JMeter, WCAG, REST API Testing</li>
+<li><strong>Cloud:</strong> Google Cloud (Compute Engine, BigQuery, Datastore, Storage)</li>
+<li><strong>AI:</strong> GitHub Copilot, GenAI-based Testing</li>
+</ul>
+
+<h2>Certifications</h2>
+<ul>
+<li>Vskills Certified Selenium Professional</li>
+<li>Vskills Certified Automation Tester using Java</li>
+<li>GitHub Copilot Certified</li>
+<li>Google Cloud Associate Cloud Engineer (In Progress)</li>
+</ul>
+
+<h2>Education</h2>
+<ul>
+<li>B.E. Electronics & Telecommunication – VESIT, Mumbai (2017–2020) | CGPA: 7.35</li>
+<li>Diploma in Electronics – VES Polytechnic (2014–2017) | 79.24%</li>
+<li>ICSE Board – Pawar Public School (2013–2014) | 88.8%</li>
+</ul>
+
+<h2>Projects</h2>
+<ul>
+<li><strong>RFID-Based Petrol Dispensing System:</strong> Automated fuel dispensing using RFID.</li>
+<li><strong>Design and Development of NFC:</strong> Sponsored by L&T Infotech, secure wireless communication.</li>
+</ul>
+
+<h2>Internship</h2>
+<ul>
+<li><strong>Selec Controls Pvt. Ltd.</strong> (July 2017 – August 2017) – Embedded systems & industrial automation.</li>
+</ul>
+
+<h2>Hobbies & Interests</h2>
+<ul>
+<li>🎯 Playing Badminton</li>
+<li>🎬 Watching Movies</li>
+<li>🎮 Playing Video Games</li>
+</ul>
+
+<div class="footer">
+<h2>Declaration</h2>
+<p>I hereby declare that the above information is correct to the best of my knowledge and belief.</p>
+<p><strong>(Pritesh J. Mahajan)</strong></p>
+</div>
+
+</div>
+
+<script>
+function toggleDarkMode() {
+    document.body.classList.toggle("dark");
+}
+</script>
+
+</body>
+</html>
