@@ -50,7 +50,7 @@ button:hover {
 <h2>Upload Images (Max 500)</h2>
 <input type="file" id="imageUpload" multiple accept="image/*">
 <br><br>
-<button onclick="generatePPT()">Generate PowerPoint</button>
+<button onclick="generatePPT()">Generate PowerPoint New</button>
 
 <div id="progressContainer">
   <div id="progressBar">0%</div>
@@ -98,7 +98,6 @@ async function generatePPT() {
     for (let j = 0; j < group.length; j++) {
 
       const file = group[j];
-
       const imageData = await readFile(file);
 
       const row = Math.floor(j / 3);
@@ -107,12 +106,25 @@ async function generatePPT() {
       const x = hGap + col * (imgWidth + hGap);
       const y = vGap + row * (imgHeight + vGap);
 
-      // --- BLACK DOTTED OUTER BORDER ---
+      // 🔴 RED OUTER FRAME (slightly larger)
       slide.addShape(pptx.ShapeType.rect, {
-        x: x - 0.05,
-        y: y - 0.05,
-        w: imgWidth + 0.1,
-        h: imgHeight + 0.1,
+        x: x - 0.12,
+        y: y - 0.12,
+        w: imgWidth + 0.24,
+        h: imgHeight + 0.24,
+        fill: { type: "none" },
+        line: {
+          color: "FF0000",
+          width: 2
+        }
+      });
+
+      // ⚫ BLACK SQUARE-DOTTED BORDER (directly around image)
+      slide.addShape(pptx.ShapeType.rect, {
+        x: x,
+        y: y,
+        w: imgWidth,
+        h: imgHeight,
         fill: { type: "none" },
         line: {
           color: "000000",
@@ -121,20 +133,7 @@ async function generatePPT() {
         }
       });
 
-      // --- RED INNER BORDER ---
-      slide.addShape(pptx.ShapeType.rect, {
-        x: x,
-        y: y,
-        w: imgWidth,
-        h: imgHeight,
-        fill: { type: "none" },
-        line: {
-          color: "FF0000",
-          width: 1.5
-        }
-      });
-
-      // --- IMAGE ---
+      // 🖼 IMAGE (no border)
       slide.addImage({
         data: imageData,
         x: x,
@@ -148,7 +147,7 @@ async function generatePPT() {
     }
   }
 
-  await pptx.writeFile("A4_Styled_Output.pptx");
+  await pptx.writeFile("A4_Final_Styled_Output.pptx");
   updateProgress(100);
 }
 
