@@ -1,60 +1,34 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>A4 Image to PPT Generator</title>
-<script src="https://unpkg.com/pptxgenjs/dist/pptxgen.bundle.js"></script>
-
-<style>
-body {
-  font-family: Arial;
-  padding: 20px;
-  background: #f4f4f4;
-}
-
-button {
-  padding: 10px 20px;
-  background: #0078D4;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #005ea6;
-}
-
-#progressContainer {
-  width: 100%;
-  background: #ddd;
-  border-radius: 10px;
-  margin-top: 20px;
-  display: none;
-}
-
-#progressBar {
-  width: 0%;
-  height: 20px;
-  background: #28a745;
-  border-radius: 10px;
-  text-align: center;
-  color: white;
-  font-size: 12px;
-}
-</style>
+  <meta charset="UTF-8">
+  <title>A4 Image to PPT Generator</title>
+  <script src="https://unpkg.com/pptxgenjs/dist/pptxgen.bundle.js"></script>
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+      background: #f4f4f4;
+    }
+    button {
+      padding: 10px 20px;
+      background: #0078D4;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #005ea6;
+    }
+  </style>
 </head>
-
 <body>
 
 <h2>Upload Images (Max 500)</h2>
 <input type="file" id="imageUpload" multiple accept="image/*">
 <br><br>
-<button onclick="generatePPT()">Generate PowerPoint</button>
-
-<div id="progressContainer">
-  <div id="progressBar">0%</div>
-</div>
+<button onclick="generatePPT()">Generate PowerPoint New</button>
 
 <script>
 async function generatePPT() {
@@ -72,111 +46,56 @@ async function generatePPT() {
     return;
   }
 
-  document.getElementById("progressContainer").style.display = "block";
-  updateProgress(0);
-
   const pptx = new PptxGenJS();
 
+  // A4 Portrait (in inches)
   pptx.defineLayout({ name: 'A4', width: 8.27, height: 11.69 });
   pptx.layout = 'A4';
 
-  const imgWidth = 2.5;
-  const imgHeight = 3.5;
+  const imgWidth = 2.5;   // 6.35 cm
+  const imgHeight = 3.5;  // 8.88 cm
 
-  const hGap = 0.1925;
-  const vGap = 0.2975;
-
-  const redWidth = 2.752;
-  const redHeight = 3.752;
-  const redOffsetX = (redWidth - imgWidth) / 2;
-  const redOffsetY = (redHeight - imgHeight) / 2;
+  const hGap = 0.1925;  // calculated horizontal margin
+  const vGap = 0.2975;  // calculated vertical margin
 
   const imagesPerSlide = 9;
 
-  // Pre-read all images first (prevents XML corruption)
-  const imageDataArray = [];
-  for (let f of files) {
-    imageDataArray.push(await readFile(f));
-  }
-
-  let processed = 0;
-
-  for (let i = 0; i < imageDataArray.length; i += imagesPerSlide) {
+  for (let i = 0; i < files.length; i += imagesPerSlide) {
 
     const slide = pptx.addSlide();
-    const group = imageDataArray.slice(i, i + imagesPerSlide);
+    const group = files.slice(i, i + imagesPerSlide);
 
     for (let j = 0; j < group.length; j++) {
 
-      const imageData = group[j];
+      const file = group[j];
+      const reader = new FileReader();
 
-      const row = Math.floor(j / 3);
-      const col = j % 3;
+      await new Promise((resolve) => {
+        reader.onload = function(e) {
 
-      const x = hGap + col * (imgWidth + hGap);
-      const y = vGap + row * (imgHeight + vGap);
+          const row = Math.floor(j / 3);
+          const col = j % 3;
 
-      // 1️⃣ ADD IMAGE FIRST
-      slide.addImage({
-        data: imageData,
-        x: x,
-        y: y,
-        w: imgWidth,
-        h: imgHeight
+          const x = hGap + col * (imgWidth + hGap);
+          const y = vGap + row * (imgHeight + vGap);
+
+          slide.addImage({
+            data: e.target.result,
+            x: x,
+            y: y,
+            w: imgWidth,
+            h: imgHeight
+          });
+
+          resolve();
+        };
+        reader.readAsDataURL(file);
       });
 
-      // 2️⃣ BLACK SQUARE DOT BORDER
-      slide.addShape(pptx.ShapeType.rect, {
-        x: x,
-        y: y,
-        w: imgWidth,
-        h: imgHeight,
-        fill: { type: "none" },
-        line: {
-          color: "000000",
-          width: 1,
-          dashType: "sqDot"
-        }
-      });
-
-      // 3️⃣ RED OUTER FRAME
-      slide.addShape(pptx.ShapeType.rect, {
-        x: x - redOffsetX,
-        y: y - redOffsetY,
-        w: redWidth,
-        h: redHeight,
-        fill: { type: "none" },
-        line: {
-          color: "FF0000",
-          width: 2
-        }
-      });
-
-      processed++;
-      updateProgress(Math.round((processed / imageDataArray.length) * 100));
     }
   }
 
-  // Safe file write format
-  await pptx.writeFile({
-    fileName: "A4_Final_Precise_Output.pptx"
-  });
-
-  updateProgress(100);
-}
-
-function readFile(file) {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onload = e => resolve(e.target.result);
-    reader.readAsDataURL(file);
-  });
-}
-
-function updateProgress(percent) {
-  const bar = document.getElementById("progressBar");
-  bar.style.width = percent + "%";
-  bar.innerText = percent + "%";
+  pptx.writeFile("A4_Resized_Images.pptx");
 }
 </script>
 
