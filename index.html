@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Bulk Image to PowerPoint Generator</title>
+  <title>A4 Image to PPT Generator</title>
   <script src="https://unpkg.com/pptxgenjs/dist/pptxgen.bundle.js"></script>
   <style>
     body {
@@ -10,46 +10,27 @@
       padding: 20px;
       background: #f4f4f4;
     }
-    h2 {
-      color: #333;
-    }
-    input {
-      margin: 10px 0;
-    }
     button {
       padding: 10px 20px;
       background: #0078D4;
       color: white;
       border: none;
-      cursor: pointer;
       border-radius: 5px;
+      cursor: pointer;
     }
     button:hover {
       background: #005ea6;
-    }
-    .info {
-      margin-top: 10px;
-      font-size: 14px;
-      color: #555;
     }
   </style>
 </head>
 <body>
 
 <h2>Upload Images (Max 500)</h2>
-
 <input type="file" id="imageUpload" multiple accept="image/*">
-<br>
-<button onclick="generatePPT()">Generate PowerPoint</button>
-
-<div class="info">
-  • Maximum 500 images<br>
-  • 9 images per slide (Front Card 1 → 9)<br>
-  • Images auto resized<br>
-</div>
+<br><br>
+<button onclick="generatePPT()">Generate PowerPoint New</button>
 
 <script>
-
 async function generatePPT() {
 
   const input = document.getElementById("imageUpload");
@@ -66,16 +47,22 @@ async function generatePPT() {
   }
 
   const pptx = new PptxGenJS();
-  pptx.layout = "LAYOUT_16x9";
+
+  // A4 Portrait (in inches)
+  pptx.defineLayout({ name: 'A4', width: 8.27, height: 11.69 });
+  pptx.layout = 'A4';
+
+  const imgWidth = 2.5;   // 6.35 cm
+  const imgHeight = 3.5;  // 8.88 cm
+
+  const hGap = 0.1925;  // calculated horizontal margin
+  const vGap = 0.2975;  // calculated vertical margin
 
   const imagesPerSlide = 9;
-  const imgWidth = 3;   // inches
-  const imgHeight = 2;  // inches
 
   for (let i = 0; i < files.length; i += imagesPerSlide) {
 
     const slide = pptx.addSlide();
-
     const group = files.slice(i, i + imagesPerSlide);
 
     for (let j = 0; j < group.length; j++) {
@@ -89,8 +76,8 @@ async function generatePPT() {
           const row = Math.floor(j / 3);
           const col = j % 3;
 
-          const x = 0.5 + col * (imgWidth + 0.3);
-          const y = 0.5 + row * (imgHeight + 0.8);
+          const x = hGap + col * (imgWidth + hGap);
+          const y = vGap + row * (imgHeight + vGap);
 
           slide.addImage({
             data: e.target.result,
@@ -98,15 +85,6 @@ async function generatePPT() {
             y: y,
             w: imgWidth,
             h: imgHeight
-          });
-
-          slide.addText(`Front Card ${j + 1}`, {
-            x: x,
-            y: y + imgHeight + 0.1,
-            w: imgWidth,
-            h: 0.3,
-            fontSize: 12,
-            align: "center"
           });
 
           resolve();
@@ -117,9 +95,8 @@ async function generatePPT() {
     }
   }
 
-  pptx.writeFile("Generated_Cards.pptx");
+  pptx.writeFile("A4_Resized_Images.pptx");
 }
-
 </script>
 
 </body>
