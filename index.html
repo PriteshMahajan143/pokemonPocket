@@ -125,7 +125,7 @@ async function generatePPT() {
         }
       });
 
-      // ⚫ BLACK SQUARE DOT BORDER (directly around image)
+      // ⚫ BLACK SQUARE DOT BORDER (Safe version)
       slide.addShape(pptx.ShapeType.rect, {
         x: x,
         y: y,
@@ -135,10 +135,9 @@ async function generatePPT() {
         line: {
           color: "000000",
           width: 1,
-          dashType: "lgSquareDot"
+          dashType: "sqDot"   // <-- SAFE square dot
         }
       });
-
       // 🖼 IMAGE
       slide.addImage({
         data: imageData,
