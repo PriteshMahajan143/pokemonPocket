@@ -50,7 +50,7 @@ button:hover {
 <h2>Upload Images (Max 500)</h2>
 <input type="file" id="imageUpload" multiple accept="image/*">
 <br><br>
-<button onclick="generatePPT()">Generate PowerPoint New</button>
+<button onclick="generatePPT()">Generate PowerPoint</button>
 
 <div id="progressContainer">
   <div id="progressBar">0%</div>
@@ -87,6 +87,12 @@ async function generatePPT() {
   const hGap = 0.1925;
   const vGap = 0.2975;
 
+  // --- Updated Red Frame Size ---
+  const redWidth = 2.752;   // 6.99 cm
+  const redHeight = 3.752;  // 9.53 cm
+  const redOffsetX = (redWidth - imgWidth) / 2;
+  const redOffsetY = (redHeight - imgHeight) / 2;
+
   const imagesPerSlide = 9;
   let processed = 0;
 
@@ -106,12 +112,12 @@ async function generatePPT() {
       const x = hGap + col * (imgWidth + hGap);
       const y = vGap + row * (imgHeight + vGap);
 
-      // 🔴 RED OUTER FRAME (slightly larger)
+      // 🔴 RED OUTER FRAME (Exact requested size)
       slide.addShape(pptx.ShapeType.rect, {
-        x: x - 0.12,
-        y: y - 0.12,
-        w: imgWidth + 0.24,
-        h: imgHeight + 0.24,
+        x: x - redOffsetX,
+        y: y - redOffsetY,
+        w: redWidth,
+        h: redHeight,
         fill: { type: "none" },
         line: {
           color: "FF0000",
@@ -119,7 +125,7 @@ async function generatePPT() {
         }
       });
 
-      // ⚫ BLACK SQUARE-DOTTED BORDER (directly around image)
+      // ⚫ BLACK SQUARE DOT BORDER (directly around image)
       slide.addShape(pptx.ShapeType.rect, {
         x: x,
         y: y,
@@ -129,11 +135,11 @@ async function generatePPT() {
         line: {
           color: "000000",
           width: 1,
-          dashType: "sysDot"
+          dashType: "lgSquareDot"
         }
       });
 
-      // 🖼 IMAGE (no border)
+      // 🖼 IMAGE
       slide.addImage({
         data: imageData,
         x: x,
@@ -147,7 +153,7 @@ async function generatePPT() {
     }
   }
 
-  await pptx.writeFile("A4_Final_Styled_Output.pptx");
+  await pptx.writeFile("A4_Final_Precise_Output.pptx");
   updateProgress(100);
 }
 
