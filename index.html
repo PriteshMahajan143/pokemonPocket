@@ -47,7 +47,7 @@
 <h2>Upload Images (Max 500)</h2>
 <input type="file" id="imageUpload" multiple accept="image/*">
 <br><br>
-<button onclick="generatePPT()">Generate PowerPoint</button>
+<button onclick="generatePPT()">Generate PowerPoint New</button>
 
 <!-- Progress Bar -->
 <div id="progressContainer">
@@ -107,26 +107,17 @@ async function generatePPT() {
           const x = hGap + col * (imgWidth + hGap);
           const y = vGap + row * (imgHeight + vGap);
 
-          // Add Image
+          // Add Image WITH dotted border (stable method)
           slide.addImage({
             data: e.target.result,
             x: x,
             y: y,
             w: imgWidth,
-            h: imgHeight
-          });
-
-          // Add Square Dotted Black Border
-          slide.addShape(pptx.ShapeType.rect, {
-            x: x,
-            y: y,
-            w: imgWidth,
             h: imgHeight,
-            fill: { type: "none" },
             line: {
               color: "000000",
               width: 1,
-              dashType: "sqDot"   // square dotted border
+              dashType: "sysDot"  // Most stable dotted style
             }
           });
 
