@@ -47,7 +47,7 @@
 <h2>Upload Images (Max 500)</h2>
 <input type="file" id="imageUpload" multiple accept="image/*">
 <br><br>
-<button onclick="generatePPT()">Generate PowerPoint New</button>
+<button onclick="generatePPT()">Generate PowerPoint</button>
 
 <!-- Progress Bar -->
 <div id="progressContainer">
@@ -100,27 +100,36 @@ async function generatePPT() {
 
       await new Promise((resolve) => {
         reader.onload = function(e) {
-
+        
           const row = Math.floor(j / 3);
           const col = j % 3;
-
+        
           const x = hGap + col * (imgWidth + hGap);
           const y = vGap + row * (imgHeight + vGap);
-
-          // Add Image WITH dotted border (stable method)
+        
+          // 1️⃣ Add dotted border shape FIRST (behind image)
+          slide.addShape(pptx.ShapeType.rect, {
+            x: x,
+            y: y,
+            w: imgWidth,
+            h: imgHeight,
+            fill: { type: "none" },
+            line: {
+              color: "000000",
+              width: 1,
+              dashType: "dot"   // safest dotted option
+            }
+          });
+        
+          // 2️⃣ Add image on top
           slide.addImage({
             data: e.target.result,
             x: x,
             y: y,
             w: imgWidth,
-            h: imgHeight,
-            line: {
-              color: "000000",
-              width: 1,
-              dashType: "sysDot"  // Most stable dotted style
-            }
+            h: imgHeight
           });
-
+        
           resolve();
         };
         reader.readAsDataURL(file);
