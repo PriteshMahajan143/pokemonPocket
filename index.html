@@ -6,53 +6,120 @@
 <script src="https://unpkg.com/pptxgenjs/dist/pptxgen.bundle.js"></script>
 
 <style>
-body {
-  font-family: Arial;
-  padding: 20px;
-  background: #f4f4f4;
+* {
+  box-sizing: border-box;
 }
-button {
-  padding: 10px 20px;
-  background: #0078D4;
-  color: white;
-  border: none;
-  border-radius: 5px;
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  width: 420px;
+  text-align: center;
+  animation: fadeIn 0.6s ease;
+}
+
+h2 {
+  margin-top: 0;
+  margin-bottom: 25px;
+  color: #333;
+}
+
+.file-input {
+  position: relative;
+  margin-bottom: 25px;
+}
+
+.file-input input {
+  width: 100%;
+  padding: 12px;
+  border: 2px dashed #2a5298;
+  border-radius: 10px;
+  background: #f4f7ff;
   cursor: pointer;
 }
+
+button {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(90deg, #0078D4, #005ea6);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
 button:hover {
-  background: #005ea6;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+button:disabled {
+  background: #999;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 /* Progress Bar */
 #progressContainer {
   width: 100%;
-  background: #ddd;
-  border-radius: 10px;
-  margin-top: 20px;
+  background: #eee;
+  border-radius: 20px;
+  margin-top: 25px;
   display: none;
+  overflow: hidden;
 }
+
 #progressBar {
   width: 0%;
-  height: 20px;
-  background: #28a745;
-  border-radius: 10px;
+  height: 22px;
+  background: linear-gradient(90deg, #28a745, #4cd964);
+  border-radius: 20px;
   text-align: center;
   color: white;
   font-size: 12px;
+  line-height: 22px;
+  transition: width 0.3s ease;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 </style>
 </head>
 
 <body>
 
-<h2>Upload Images</h2>
-<input type="file" id="imageUpload" multiple accept="image/*">
-<br><br>
-<button onclick="generatePPT()">Generate PowerPoint</button>
+<div class="container">
+  <h2>Image to A4 PowerPoint</h2>
 
-<!-- Progress Bar -->
-<div id="progressContainer">
-  <div id="progressBar">0%</div>
+  <div class="file-input">
+    <input type="file" id="imageUpload" multiple accept="image/*">
+  </div>
+
+  <button id="generateBtn" onclick="generatePPT()">Generate PowerPoint</button>
+
+  <!-- Progress Bar -->
+  <div id="progressContainer">
+    <div id="progressBar">0%</div>
+  </div>
 </div>
 
 <script>
@@ -60,6 +127,7 @@ async function generatePPT() {
 
   const input = document.getElementById("imageUpload");
   const files = Array.from(input.files);
+  const button = document.getElementById("generateBtn");
 
   if (files.length === 0) {
     alert("Please upload images.");
@@ -70,6 +138,9 @@ async function generatePPT() {
     alert("Maximum 500 images allowed.");
     return;
   }
+
+  button.disabled = true;
+  button.innerText = "Generating...";
 
   document.getElementById("progressContainer").style.display = "block";
   updateProgress(0);
@@ -127,7 +198,10 @@ async function generatePPT() {
   }
 
   await pptx.writeFile("A4_Resized_Images.pptx");
+
   updateProgress(100);
+  button.disabled = false;
+  button.innerText = "Generate PowerPoint";
 }
 
 function updateProgress(percent) {
