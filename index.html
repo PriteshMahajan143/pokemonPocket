@@ -15,11 +15,11 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  transition: background 0.4s, color 0.4s;
+  background: linear-gradient(135deg, #ffcb05, #3b4cca);
   overflow: hidden;
 }
 
-/* Pokémon Themed Background */
+/* Floating Pokémon style glow */
 body::before {
   content: "";
   position: fixed;
@@ -29,7 +29,7 @@ body::before {
     radial-gradient(circle at 30% 30%, #ff0000 0%, transparent 25%),
     radial-gradient(circle at 70% 40%, #ffcb05 0%, transparent 25%),
     radial-gradient(circle at 50% 80%, #3b4cca 0%, transparent 25%);
-  opacity: 0.2;
+  opacity: 0.15;
   animation: floatBg 20s linear infinite;
   z-index: -1;
 }
@@ -40,37 +40,17 @@ body::before {
   100% { transform: translate(0,0); }
 }
 
-/* Light Mode */
-body.light {
-  background: linear-gradient(135deg, #ffcb05, #3b4cca);
-  color: #222;
-}
-
-/* Dark Mode */
-body.dark {
-  background: linear-gradient(135deg, #111, #1c1c1c);
-  color: #eee;
-}
-
 .container {
   background: white;
   padding: 40px;
   border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.25);
   width: 420px;
   text-align: center;
   animation: fadeIn 0.6s ease;
-  transition: 0.4s;
 }
 
-body.dark .container {
-  background: #2a2a2a;
-}
-
-h2 {
-  margin-top: 0;
-  margin-bottom: 25px;
-}
+h2 { margin-bottom: 25px; }
 
 .file-input input {
   width: 100%;
@@ -82,32 +62,17 @@ h2 {
   margin-bottom: 20px;
 }
 
-body.dark .file-input input {
-  background: #333;
-  border-color: #ffcb05;
-  color: white;
-}
-
 button {
   width: 100%;
   padding: 14px;
-  margin-top: 10px;
   border: none;
   border-radius: 10px;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: 0.3s;
-}
-
-.generate-btn {
   background: linear-gradient(90deg, #ff0000, #cc0000);
   color: white;
-}
-
-.toggle-btn {
-  background: linear-gradient(90deg, #3b4cca, #2a75bb);
-  color: white;
+  transition: 0.3s;
 }
 
 button:hover {
@@ -122,30 +87,46 @@ button:disabled {
   box-shadow: none;
 }
 
-/* Progress Bar */
-#progressContainer {
-  width: 100%;
-  background: #eee;
-  border-radius: 20px;
-  margin-top: 25px;
+/* Pokéball Loader */
+.loader {
   display: none;
-  overflow: hidden;
+  margin: 30px auto 0;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: linear-gradient(to bottom, #ff0000 50%, #ffffff 50%);
+  border: 4px solid #000;
+  position: relative;
+  animation: spin 1s linear infinite;
 }
 
-#progressBar {
-  width: 0%;
-  height: 22px;
-  background: linear-gradient(90deg, #ffcb05, #ff0000);
-  border-radius: 20px;
-  text-align: center;
-  color: black;
-  font-size: 12px;
-  line-height: 22px;
-  transition: width 0.2s linear;
+.loader::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background: #000;
+  transform: translateY(-50%);
 }
 
-body.dark #progressBar {
-  color: white;
+.loader::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  border: 4px solid #000;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 @keyframes fadeIn {
@@ -155,34 +136,28 @@ body.dark #progressBar {
 </style>
 </head>
 
-<body class="light">
+<body>
 
 <div class="container">
-  <h2>Image to A4 PowerPoint</h2>
+  <h2>Images to A4 PowerPoint</h2>
 
   <div class="file-input">
     <input type="file" id="imageUpload" multiple accept="image/*">
   </div>
 
-  <button id="generateBtn" class="generate-btn" onclick="generatePPT()">Generate PowerPoint</button>
-  <button class="toggle-btn" onclick="toggleMode()">Toggle Dark Mode</button>
+  <button id="generateBtn" onclick="generatePPT()">Generate PowerPoint</button>
 
-  <div id="progressContainer">
-    <div id="progressBar">0%</div>
-  </div>
+  <!-- Pokéball Loader -->
+  <div id="loader" class="loader"></div>
 </div>
 
 <script>
-function toggleMode() {
-  document.body.classList.toggle("dark");
-  document.body.classList.toggle("light");
-}
-
 async function generatePPT() {
 
   const input = document.getElementById("imageUpload");
   const files = Array.from(input.files);
   const button = document.getElementById("generateBtn");
+  const loader = document.getElementById("loader");
 
   if (files.length === 0) {
     alert("Please upload images.");
@@ -196,24 +171,21 @@ async function generatePPT() {
 
   button.disabled = true;
   button.innerText = "Generating...";
-
-  document.getElementById("progressContainer").style.display = "block";
-  updateProgress(0);
+  loader.style.display = "block";
 
   const pptx = new PptxGenJS();
   pptx.defineLayout({ name: 'A4', width: 8.27, height: 11.69 });
   pptx.layout = 'A4';
 
-  const imgWidth = 2.5;
-  const imgHeight = 3.5;
+  const imgWidth = 2.5;        // 6.35 cm
+  const imgHeight = 3.496;     // EXACT 8.88 cm
+
   const hGap = 0.1925;
   const vGap = 0.2975;
 
   const imagesPerSlide = 9;
-  let processed = 0;
-  const total = files.length;
 
-  for (let i = 0; i < total; i += imagesPerSlide) {
+  for (let i = 0; i < files.length; i += imagesPerSlide) {
 
     const slide = pptx.addSlide();
     const group = files.slice(i, i + imagesPerSlide);
@@ -244,30 +216,14 @@ async function generatePPT() {
         };
         reader.readAsDataURL(file);
       });
-
-      processed++;
-
-      // Accurate progress calculation
-      let percent = Math.floor((processed / total) * 100);
-
-      // Prevent visual stall at 99%
-      if (percent > 99) percent = 99;
-
-      updateProgress(percent);
     }
   }
 
   await pptx.writeFile("A4_Resized_Images.pptx");
 
-  updateProgress(100);
+  loader.style.display = "none";
   button.disabled = false;
   button.innerText = "Generate PowerPoint";
-}
-
-function updateProgress(percent) {
-  const bar = document.getElementById("progressBar");
-  bar.style.width = percent + "%";
-  bar.innerText = percent + "%";
 }
 </script>
 
