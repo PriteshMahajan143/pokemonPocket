@@ -2,65 +2,111 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>A4 Image to PPT Generator</title>
+<title>Pokemon A4 PPT Generator</title>
 <script src="https://unpkg.com/pptxgenjs/dist/pptxgen.bundle.js"></script>
 
 <style>
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
-  font-family: 'Segoe UI', Arial, sans-serif;
-  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  font-family: 'Segoe UI', sans-serif;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  transition: 0.4s;
+  overflow: hidden;
+}
+
+/* Pokémon Themed Background */
+body::before {
+  content: "";
+  position: fixed;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 20% 20%, #ffcb05 0%, transparent 20%),
+              radial-gradient(circle at 80% 30%, #ff0000 0%, transparent 20%),
+              radial-gradient(circle at 40% 80%, #3b4cca 0%, transparent 20%),
+              radial-gradient(circle at 90% 90%, #2a75bb 0%, transparent 20%);
+  animation: moveBg 20s linear infinite;
+  z-index: -1;
+  opacity: 0.25;
+}
+
+@keyframes moveBg {
+  0% { transform: translate(0,0); }
+  50% { transform: translate(-10%, -10%); }
+  100% { transform: translate(0,0); }
+}
+
+body.light {
+  background: linear-gradient(135deg, #ffcb05, #3b4cca);
+  color: #222;
+}
+
+body.dark {
+  background: linear-gradient(135deg, #111, #222);
+  color: #eee;
 }
 
 .container {
-  background: white;
+  background: rgba(255,255,255,0.9);
   padding: 40px;
-  border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  border-radius: 20px;
   width: 420px;
   text-align: center;
-  animation: fadeIn 0.6s ease;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  transition: 0.4s;
+}
+
+body.dark .container {
+  background: rgba(30,30,30,0.95);
 }
 
 h2 {
   margin-top: 0;
-  margin-bottom: 25px;
-  color: #333;
 }
 
-.file-input {
-  position: relative;
-  margin-bottom: 25px;
-}
-
-.file-input input {
+input[type="file"] {
   width: 100%;
   padding: 12px;
-  border: 2px dashed #2a5298;
   border-radius: 10px;
-  background: #f4f7ff;
-  cursor: pointer;
+  border: 2px dashed #3b4cca;
+  background: #f8f9ff;
+  margin-bottom: 20px;
+}
+
+body.dark input[type="file"] {
+  background: #333;
+  border-color: #ffcb05;
+  color: white;
 }
 
 button {
   width: 100%;
   padding: 14px;
-  background: linear-gradient(90deg, #0078D4, #005ea6);
-  color: white;
+  margin-top: 10px;
   border: none;
   border-radius: 10px;
-  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   transition: 0.3s;
+}
+
+.primary-btn {
+  background: linear-gradient(90deg, #ff0000, #cc0000);
+  color: white;
+}
+
+.preview-btn {
+  background: linear-gradient(90deg, #3b4cca, #2a75bb);
+  color: white;
+}
+
+.toggle-btn {
+  background: #444;
+  color: white;
 }
 
 button:hover {
@@ -68,92 +114,81 @@ button:hover {
   box-shadow: 0 8px 20px rgba(0,0,0,0.2);
 }
 
-button:disabled {
-  background: #999;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
 /* Progress Bar */
 #progressContainer {
   width: 100%;
-  background: #eee;
+  background: #ddd;
   border-radius: 20px;
-  margin-top: 25px;
+  margin-top: 20px;
   display: none;
-  overflow: hidden;
 }
 
 #progressBar {
   width: 0%;
   height: 22px;
-  background: linear-gradient(90deg, #28a745, #4cd964);
+  background: linear-gradient(90deg, #ffcb05, #ff0000);
   border-radius: 20px;
   text-align: center;
-  color: white;
+  color: black;
   font-size: 12px;
   line-height: 22px;
-  transition: width 0.3s ease;
+  transition: width 0.3s;
 }
 
-/* Animation */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
+body.dark #progressBar {
+  color: white;
 }
 </style>
 </head>
 
-<body>
+<body class="light">
 
 <div class="container">
-  <h2>Image to A4 PowerPoint</h2>
+  <h2>Pokémon A4 PPT Generator</h2>
 
-  <div class="file-input">
-    <input type="file" id="imageUpload" multiple accept="image/*">
-  </div>
+  <input type="file" id="imageUpload" multiple accept="image/*">
 
-  <button id="generateBtn" onclick="generatePPT()">Generate PowerPoint</button>
+  <button class="primary-btn" onclick="generatePPT()">Generate PPT</button>
+  <button class="preview-btn" onclick="previewPPT()">Preview PPT</button>
+  <button class="toggle-btn" onclick="toggleMode()">Toggle Dark Mode</button>
 
-  <!-- Progress Bar -->
   <div id="progressContainer">
     <div id="progressBar">0%</div>
   </div>
 </div>
 
 <script>
-async function generatePPT() {
+let generatedBlob = null;
+
+function toggleMode() {
+  document.body.classList.toggle("dark");
+  document.body.classList.toggle("light");
+}
+
+async function buildPPT() {
 
   const input = document.getElementById("imageUpload");
   const files = Array.from(input.files);
-  const button = document.getElementById("generateBtn");
 
   if (files.length === 0) {
     alert("Please upload images.");
-    return;
+    return null;
   }
 
   if (files.length > 500) {
     alert("Maximum 500 images allowed.");
-    return;
+    return null;
   }
-
-  button.disabled = true;
-  button.innerText = "Generating...";
 
   document.getElementById("progressContainer").style.display = "block";
   updateProgress(0);
 
   const pptx = new PptxGenJS();
-
-  // A4 Portrait
   pptx.defineLayout({ name: 'A4', width: 8.27, height: 11.69 });
   pptx.layout = 'A4';
 
   const imgWidth = 2.5;
   const imgHeight = 3.5;
-
   const hGap = 0.1925;
   const vGap = 0.2975;
 
@@ -161,12 +196,10 @@ async function generatePPT() {
   let processed = 0;
 
   for (let i = 0; i < files.length; i += imagesPerSlide) {
-
     const slide = pptx.addSlide();
     const group = files.slice(i, i + imagesPerSlide);
 
     for (let j = 0; j < group.length; j++) {
-
       const file = group[j];
       const reader = new FileReader();
 
@@ -197,11 +230,27 @@ async function generatePPT() {
     }
   }
 
-  await pptx.writeFile("A4_Resized_Images.pptx");
-
+  generatedBlob = await pptx.write("blob");
   updateProgress(100);
-  button.disabled = false;
-  button.innerText = "Generate PowerPoint";
+  return generatedBlob;
+}
+
+async function generatePPT() {
+  const blob = await buildPPT();
+  if (blob) {
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "Pokemon_A4_Output.pptx";
+    link.click();
+  }
+}
+
+async function previewPPT() {
+  const blob = await buildPPT();
+  if (blob) {
+    const url = URL.createObjectURL(blob);
+    window.open(url, "_blank");
+  }
 }
 
 function updateProgress(percent) {
