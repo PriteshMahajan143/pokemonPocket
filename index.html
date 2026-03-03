@@ -201,18 +201,70 @@ function saveCards() {
 }
 
 /* Load Gallery */
-function loadGallery() {
+async function loadGallery() {
+
+  const username = "PriteshMahajan143";
+  const repo = "pokemonPocket";
+  const branch = "main";
+
   const gallery = document.getElementById("cardGallery");
-  gallery.innerHTML = "";
+  gallery.innerHTML = "Loading cards...";
 
-  let storedCards = JSON.parse(localStorage.getItem("cards") || "[]");
+  try {
+    const response = await fetch(
+      `https://api.github.com/repos/${username}/${repo}/contents/cards?ref=${branch}`
+    );
 
-  storedCards.forEach(src => {
-    const img = document.createElement("img");
-    img.src = src;
-    img.className = "card-img";
-    gallery.appendChild(img);
-  });
+    const folders = await response.json();
+    gallery.innerHTML = "";
+
+    for (const folder of folders) {
+
+      if (folder.type === "dir") {
+
+        // Create Folder Section
+        const section = document.createElement("div");
+        section.style.marginBottom = "50px";
+
+        const title = document.createElement("h3");
+        title.innerText = folder.name;
+        title.style.marginBottom = "15px";
+        section.appendChild(title);
+
+        const grid = document.createElement("div");
+        grid.style.display = "grid";
+        grid.style.gridTemplateColumns = "repeat(auto-fill, minmax(150px, 1fr))";
+        grid.style.gap = "20px";
+
+        // Fetch images inside folder
+        const imageResponse = await fetch(folder.url);
+        const images = await imageResponse.json();
+
+        images.forEach(img => {
+          if (img.type === "file" && img.name.match(/\.(jpg|jpeg|png|webp)$/i)) {
+
+            const imageElement = document.createElement("img");
+            imageElement.src = img.download_url;
+            imageElement.style.width = "100%";
+            imageElement.style.borderRadius = "12px";
+            imageElement.style.boxShadow = "0 10px 20px rgba(0,0,0,0.2)";
+            imageElement.style.transition = "0.3s";
+            imageElement.onmouseover = () => imageElement.style.transform = "scale(1.05)";
+            imageElement.onmouseout = () => imageElement.style.transform = "scale(1)";
+
+            grid.appendChild(imageElement);
+          }
+        });
+
+        section.appendChild(grid);
+        gallery.appendChild(section);
+      }
+    }
+
+  } catch (error) {
+    gallery.innerHTML = "Failed to load cards.";
+    console.error(error);
+  }
 }
 
 /* Generate PPT */
