@@ -11,33 +11,34 @@
 body {
   margin: 0;
   font-family: 'Segoe UI', Arial, sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
   background: linear-gradient(135deg, #ffcb05, #3b4cca);
-  overflow: hidden;
+  min-height: 100vh;
 }
 
-/* Floating Pokémon style glow */
-body::before {
-  content: "";
-  position: fixed;
-  width: 200%;
-  height: 200%;
-  background:
-    radial-gradient(circle at 30% 30%, #ff0000 0%, transparent 25%),
-    radial-gradient(circle at 70% 40%, #ffcb05 0%, transparent 25%),
-    radial-gradient(circle at 50% 80%, #3b4cca 0%, transparent 25%);
-  opacity: 0.15;
-  animation: floatBg 20s linear infinite;
-  z-index: -1;
+/* Navigation */
+.navbar {
+  background: #111;
+  padding: 12px;
+  text-align: center;
 }
 
-@keyframes floatBg {
-  0% { transform: translate(0,0); }
-  50% { transform: translate(-5%, -5%); }
-  100% { transform: translate(0,0); }
+.navbar button {
+  width: auto;
+  margin: 0 10px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+/* Page Layout */
+.page {
+  display: none;
+  padding: 40px;
+  text-align: center;
+}
+
+.active {
+  display: block;
 }
 
 .container {
@@ -46,11 +47,8 @@ body::before {
   border-radius: 16px;
   box-shadow: 0 20px 40px rgba(0,0,0,0.25);
   width: 420px;
-  text-align: center;
-  animation: fadeIn 0.6s ease;
+  margin: auto;
 }
-
-h2 { margin-bottom: 25px; }
 
 .file-input input {
   width: 100%;
@@ -63,7 +61,6 @@ h2 { margin-bottom: 25px; }
 }
 
 button {
-  width: 100%;
   padding: 14px;
   border: none;
   border-radius: 10px;
@@ -77,14 +74,6 @@ button {
 
 button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-}
-
-button:disabled {
-  background: #888;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
 }
 
 /* Pokéball Loader */
@@ -129,29 +118,104 @@ button:disabled {
   to { transform: rotate(360deg); }
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
+/* Card Gallery */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.card-img {
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  transition: 0.3s;
+}
+
+.card-img:hover {
+  transform: scale(1.05);
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
-  <h2>Images to A4 PowerPoint</h2>
+<div class="navbar">
+  <button onclick="showPage('homePage')">Home</button>
+  <button onclick="showPage('galleryPage')">My Cards</button>
+</div>
 
-  <div class="file-input">
-    <input type="file" id="imageUpload" multiple accept="image/*">
+<!-- HOME PAGE -->
+<div id="homePage" class="page active">
+  <div class="container">
+    <h2>Images to A4 PowerPoint</h2>
+
+    <div class="file-input">
+      <input type="file" id="imageUpload" multiple accept="image/*">
+    </div>
+
+    <button onclick="saveCards()">Save Cards</button>
+    <br><br>
+    <button id="generateBtn" onclick="generatePPT()">Generate PowerPoint</button>
+
+    <div id="loader" class="loader"></div>
   </div>
+</div>
 
-  <button id="generateBtn" onclick="generatePPT()">Generate PowerPoint</button>
-
-  <!-- Pokéball Loader -->
-  <div id="loader" class="loader"></div>
+<!-- GALLERY PAGE -->
+<div id="galleryPage" class="page">
+  <h2>My Stored Cards</h2>
+  <div id="cardGallery" class="gallery"></div>
 </div>
 
 <script>
+
+/* Page Switch */
+function showPage(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+  if (pageId === "galleryPage") loadGallery();
+}
+
+/* Save Cards to Browser */
+function saveCards() {
+  const files = Array.from(document.getElementById("imageUpload").files);
+  if (files.length === 0) {
+    alert("Upload images first.");
+    return;
+  }
+
+  let storedCards = JSON.parse(localStorage.getItem("cards") || "[]");
+
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      storedCards.push(e.target.result);
+      localStorage.setItem("cards", JSON.stringify(storedCards));
+    };
+    reader.readAsDataURL(file);
+  });
+
+  alert("Cards saved successfully!");
+}
+
+/* Load Gallery */
+function loadGallery() {
+  const gallery = document.getElementById("cardGallery");
+  gallery.innerHTML = "";
+
+  let storedCards = JSON.parse(localStorage.getItem("cards") || "[]");
+
+  storedCards.forEach(src => {
+    const img = document.createElement("img");
+    img.src = src;
+    img.className = "card-img";
+    gallery.appendChild(img);
+  });
+}
+
+/* Generate PPT */
 async function generatePPT() {
 
   const input = document.getElementById("imageUpload");
@@ -164,22 +228,15 @@ async function generatePPT() {
     return;
   }
 
-  if (files.length > 500) {
-    alert("Maximum 500 images allowed.");
-    return;
-  }
-
   button.disabled = true;
-  button.innerText = "Generating...";
   loader.style.display = "block";
 
   const pptx = new PptxGenJS();
   pptx.defineLayout({ name: 'A4', width: 8.27, height: 11.69 });
   pptx.layout = 'A4';
 
-  const imgWidth = 2.5;        // 6.35 cm
-  const imgHeight = 3.496;     // EXACT 8.88 cm
-
+  const imgWidth = 2.5;
+  const imgHeight = 3.496;
   const hGap = 0.1925;
   const vGap = 0.2975;
 
@@ -223,7 +280,6 @@ async function generatePPT() {
 
   loader.style.display = "none";
   button.disabled = false;
-  button.innerText = "Generate PowerPoint";
 }
 </script>
 
